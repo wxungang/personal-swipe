@@ -1,0 +1,23 @@
+{
+  "name": "personal-swipe",
+  "version": "1.0.0",
+  "description": "personal swipe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wxungang/personal-swipe.git"
+  },
+  "keywords": [
+    "vue",
+    "swipe"
+  ],
+  "author": "wxungang@163.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wxungang/personal-swipe/issues"
+  },
+  "homepage": "https://github.com/wxungang/personal-swipe#readme"
+}
