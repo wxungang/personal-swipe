@@ -1,6 +1,6 @@
 {
   "name": "personal-swipe",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "personal swipe",
   "main": "./src/index.js",
   "scripts": {
@@ -12,7 +12,9 @@
   },
   "keywords": [
     "vue",
-    "swipe"
+    "swipe",
+    "tap",
+    "touch"
   ],
   "author": "wxungang@163.com",
   "license": "MIT",

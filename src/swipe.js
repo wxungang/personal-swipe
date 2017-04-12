@@ -8,11 +8,10 @@
 var touch = {},
   touchTimeout, tapTimeout, swipeTimeout, longTapTimeout,
   longTapDelay = 750,
-  gesture
+  gesture;
 
 function swipeDirection(x1, x2, y1, y2) {
-  return Math.abs(x1 - x2) >=
-  Math.abs(y1 - y2) ? (x1 - x2 > 0 ? 'Left' : 'Right') : (y1 - y2 > 0 ? 'Up' : 'Down')
+  return Math.abs(x1 - x2) >= Math.abs(y1 - y2) ? (x1 - x2 > 0 ? 'Left' : 'Right') : (y1 - y2 > 0 ? 'Up' : 'Down');
 }
 
 function longTap() {
@@ -26,57 +25,58 @@ function longTap() {
 }
 
 function cancelLongTap() {
-  if (longTapTimeout) clearTimeout(longTapTimeout)
-  longTapTimeout = null
+  if (longTapTimeout){clearTimeout(longTapTimeout);}
+  longTapTimeout = null;
 }
 
 function cancelAll() {
-  if (touchTimeout) clearTimeout(touchTimeout)
-  if (tapTimeout) clearTimeout(tapTimeout)
-  if (swipeTimeout) clearTimeout(swipeTimeout)
-  if (longTapTimeout) clearTimeout(longTapTimeout)
-  touchTimeout = tapTimeout = swipeTimeout = longTapTimeout = null
-  touch = {}
+  if (touchTimeout) {clearTimeout(touchTimeout);}
+  if (tapTimeout){ clearTimeout(tapTimeout);}
+  if (swipeTimeout) {clearTimeout(swipeTimeout);}
+  if (longTapTimeout) {clearTimeout(longTapTimeout);}
+  touchTimeout = tapTimeout = swipeTimeout = longTapTimeout = null;
+  touch = {};
 }
 
 function isPrimaryTouch(event) {
-  return (event.pointerType == 'touch' || event.pointerType == event.MSPOINTER_TYPE_TOUCH) && event.isPrimary
+  return (event.pointerType == 'touch' || event.pointerType == event.MSPOINTER_TYPE_TOUCH) && event.isPrimary;
 }
 
 function isPointerEventType(e, type) {
-  return (e.type == 'pointer' + type ||
-  e.type.toLowerCase() == 'mspointer' + type)
+  return (e.type == 'pointer' + type || e.type.toLowerCase() == 'mspointer' + type);
 }
 
 
-function init(el, self) {
-  var now, delta, deltaX = 0, deltaY = 0, firstTouch, _isPointerType
+function init(el) {
+  var now, delta, deltaX = 0, deltaY = 0, firstTouch, _isPointerType;
 
   if ('MSGesture' in window) {
-    gesture = new MSGesture()
-    gesture.target = document.body
+    gesture = new MSGesture();
+    gesture.target = document.body;
   }
 
   el.addEventListener('MSGestureEnd', function (e) {
-    var swipeDirectionFromVelocity =
-      e.velocityX > 1 ? 'Right' : e.velocityX < -1 ? 'Left' : e.velocityY > 1 ? 'Down' : e.velocityY < -1 ? 'Up' : null
+    if(el.modifiers.stop){
+      e.stopPropagation();
+    }
+    var swipeDirectionFromVelocity = e.velocityX > 1 ? 'Right' : e.velocityX < -1 ? 'Left' : e.velocityY > 1 ? 'Down' : e.velocityY < -1 ? 'Up' : null;
     if (swipeDirectionFromVelocity) {
       touch.el.trigger('swipe');
       touch.el.trigger('swipe' + swipeDirectionFromVelocity);
     }
   });
   // el.addEventListener('touchstart MSPointerDown pointerdown', _touchstart);
-  el.addEventListener('touchstart', _touchstart);
+  el.addEventListener('touchstart', _touchstart, false);
   // el.addEventListener('MSPointerDown', _touchstart);
   // el.addEventListener('pointerdown', _touchstart);
 
   // el.addEventListener('touchmove MSPointerMove pointermove',_touchmove);
-  el.addEventListener('touchmove', _touchmove);
+  el.addEventListener('touchmove', _touchmove, false);
   // el.addEventListener('MSPointerMove', _touchmove);
   // el.addEventListener('pointermove', _touchmove);
 
   // el.addEventListener('touchend MSPointerUp pointerup', _touchend);
-  el.addEventListener('touchend', _touchend);
+  el.addEventListener('touchend', _touchend, false);
   // el.addEventListener('MSPointerUp', _touchend);
   // el.addEventListener('pointerup', _touchend);
 
@@ -84,15 +84,18 @@ function init(el, self) {
   // for example when a modal dialog is shown,
   // cancel all ongoing events
   // el.addEventListener('touchcancel MSPointerCancel pointercancel', cancelAll)
-  el.addEventListener('touchcancel', cancelAll);
+  el.addEventListener('touchcancel', cancelAll, false);
 
   // scrolling the window indicates intention of the user
   // to scroll, not tap or swipe, so cancel all ongoing events
-  window.addEventListener('scroll', cancelAll);
+  window.addEventListener('scroll', cancelAll, false);
 
   //内部函数
   function _touchstart(e) {
     console.log('touchstart');
+    if(el.modifiers.stop){
+      e.stopPropagation();
+    }
     if ((_isPointerType = isPointerEventType(e, 'down')) &&
       !isPrimaryTouch(e)) return;
     firstTouch = _isPointerType ? e : e.touches[0];
@@ -118,10 +121,13 @@ function init(el, self) {
       gesture.addPointer(e.pointerId);
     }
     //触发相关事件 todo
-    el.touchstart(e);
+    // el.touchstart(e);
   }
 
   function _touchmove(e) {
+    if(el.modifiers.stop){
+      e.stopPropagation();
+    }
     if ((_isPointerType = isPointerEventType(e, 'move')) &&
       !isPrimaryTouch(e)) return;
     firstTouch = _isPointerType ? e : e.touches[0];
@@ -134,8 +140,10 @@ function init(el, self) {
   }
 
   function _touchend(e) {
-    if ((_isPointerType = isPointerEventType(e, 'up')) &&
-      !isPrimaryTouch(e)) return;
+    if(el.modifiers.stop){
+      e.stopPropagation();
+    }
+    if ((_isPointerType = isPointerEventType(e, 'up')) && !isPrimaryTouch(e)) return;
     cancelLongTap();
 
     // swipe
@@ -205,17 +213,17 @@ function init(el, self) {
   function _longTap() {
     longTapTimeout = null
     if (touch.last) {
-      // touch.el.trigger('longTap')
-      // todo
+      //touch.el.trigger('longTap')
+      //todo
       el.longTap();
       touch = {}
     }
   }
 }
-
 ;
+//组件对外暴露的插件方法
 function eventMap(el) {
-  ['swipe', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'doubleTap', 'tap', 'singleTap', 'longTap', 'touchstart'].forEach(function (eventName) {
+  ['swipe', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'doubleTap', 'tap', 'singleTap', 'longTap'].forEach(function (eventName) {
     el[eventName] = function (e) {
       if (el.funcName == eventName) {
         el.callback(e);
@@ -229,10 +237,11 @@ export default {
   bind(el, binding, vnode) {
     console.log("directives bind--------------");
     //存储dom节点信息
-    touch.el = el;
+    // touch.el = el;
     //func
     el.funcName = binding.arg;
     el.callback = binding.value;
+    el.modifiers=binding.modifiers;
 
     eventMap(el);
     //var s = JSON.stringify;
@@ -249,10 +258,7 @@ export default {
     console.log(binding);
     console.log(vnode);
 
-    console.log(touch);
-
     init(el);
-
 
   },
   unbind(el) {
